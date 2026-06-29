@@ -1,142 +1,35 @@
 package stepsDefinition;
 
 import common.ContextSteps;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.And;
-
 import org.junit.Assert;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pageObject.managementEduLogin;
-import java.time.Duration;
-import pageObject.managementEduDashboard;
-import pageObject.managementEduPhongHoc;
 import pageObject.managementEduHocVien;
 import pageObject.managementEduThemHocVien;
+import java.time.Duration;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ManagementEduSteps {
+public class ManagementEduHocVienSteps {
     WebDriver driver;
     WebDriverWait wait;
-    managementEduLogin loginPage;
-    managementEduDashboard dashBoardPage;
-    managementEduPhongHoc phongHocPage;
     managementEduHocVien hocVienPage;
     managementEduThemHocVien themHocVienPage;
 
-    public ManagementEduSteps()throws Throwable{
+    public ManagementEduHocVienSteps() throws Throwable {
         ContextSteps contextSteps = new ContextSteps();
-       if (System.getProperty("osName").trim().toLowerCase().contains("windows")){
-           driver =contextSteps.getDriver();
-           wait = new WebDriverWait(driver, Duration.ofSeconds(Integer.parseInt(System.getProperty("objectTimeout"))));
-           loginPage = new managementEduLogin(driver);
-           dashBoardPage = new managementEduDashboard(driver);
-           phongHocPage = new managementEduPhongHoc(driver);
-           hocVienPage = new managementEduHocVien(driver);
-           themHocVienPage = new managementEduThemHocVien(driver);
-
-       }
-    }
-    @Given("I open web page the YoEdu Management")
-    public void i_open_web_page_the_yoedu_management(){
-      try {
-          System.out.println("Step: I open web page the YoEdu Management");
-          driver.get(System.getProperty("baseUrl"));
-      }catch (Exception e){
-          Assert.fail(e.getMessage());
-      }
-    }
-    @When("I login with username {string} and password {string}")
-    public void i_login_with_username_and_password(String username, String password) {
-        try {
-            System.out.println("Step: I login with username: " + username + " | password: " + password);
-            loginPage.funcLogin(username, password);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
+        if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+            driver = contextSteps.getDriver();
+            wait = new WebDriverWait(driver, Duration.ofSeconds(Integer.parseInt(System.getProperty("objectTimeout"))));
+            hocVienPage = new managementEduHocVien(driver);
+            themHocVienPage = new managementEduThemHocVien(driver);
         }
-    }
-    @Then("The system should display a login error message")
-    public void the_system_should_display_a_login_error_message() {
-        System.out.println("Step: Verify hiển thị cảnh báo đăng nhập thất bại");
-        boolean isErrorShown = loginPage.isLoginErrorMessageDisplayed();
-        Assert.assertTrue("Đăng nhập sai nhưng hệ thống không hiện thông báo lỗi!", isErrorShown);
-    }
-    @When("I open the sidebar menu")
-    public void I_open_the_sidebar_menu (){
-        try{
-            System.out.println("Step: I open the sidebar menu");
-            dashBoardPage.funcOpenSidebarMenu();
-        }catch (Exception e){
-            Assert.fail(e.getMessage());
-        }
-    }
-    @When("I click on the menu {string}")
-    public void I_click_on_the_menu(String menuName){
-        try{
-            System.out.println("Step: I click on the menu: "+ menuName);
-            dashBoardPage.funcClickMenuItem(menuName);
-        }catch (Exception e){
-            Assert.fail(e.getMessage());
-        }
-    }
-    @When("I click on the Add new button")
-    public void I_click_on_the_Add_new_button(){
-        try{
-            System.out.println("Step:I click on the Add new button");
-            phongHocPage.funcClickAddButton();
-        }catch (Exception e){
-            Assert.fail(e.getMessage());
-        }
-    }
-    @When("I fill room with code {string}, name {string}, description {string}, facility {string}")
-    public void  i_fill_with_code_name_description_facility(String code,String name,String description,String facility){
-        try{
-            System.out.println("Step:Fill room into - "+ code +"|" + name);
-            phongHocPage.funcFillRoom(code,name,description,facility);
-        }catch(Exception e){
-            Assert.fail(e.getMessage());
-        }
-    }
-    @When("I upload the room image {string}")
-    public void i_upload_the_room_image(String imageName){
-        try{
-            System.out.println("Step: Upload image - " + imageName);
-            phongHocPage.funcUploadImage(imageName);
-        }catch (Exception e){
-            Assert.fail(e.getMessage());
-        }
-    }
-    @When("I click on the Save button")
-    public void I_click_on_the_save_button(){
-        try{
-            System.out.println("Step: I click on the save button");
-            phongHocPage.funcClickSave();
-        }catch (Exception e){
-            Assert.fail(e.getMessage());
-        }
-    }
-    @When("I search for the room with name {string}")
-    public void i_search_for_the_room_with_name(String roomName) {
-        System.out.println("Step: Tìm kiếm phòng với tên: " + roomName);
-        phongHocPage.funcSearchRoom(roomName);
-    }
-    @Then("The result should display {string}")
-    public void the_result_should_display(String expectedResult) {
-        boolean isDisplayed = phongHocPage.isResultDisplayed(expectedResult);
-        Assert.assertTrue("Kết quả tìm kiếm không hiển thị: " + expectedResult, isDisplayed);
-    }
-    @Then("The system should display a no data message")
-    public void the_system_should_display_a_no_data_message() {
-        System.out.println("Step: Verify bảng kết quả trống");
-        boolean isEmpty = phongHocPage.isTableEmpty();
-        Assert.assertTrue("Kết quả tìm kiếm sai: Bảng vẫn đang hiển thị dữ liệu thay vì trống!", isEmpty);
-    }
-    @Then("The system should display required field validation messages")
-    public void the_system_should_display_required_field_validation_messages() {
-        System.out.println("Verify hiển thị cảnh báo lỗi nhập liệu");
-        boolean isWarningShown = phongHocPage.isValidationMessageDisplayed();
-        Assert.assertTrue("Cho phép lưu khi bỏ trống trường bắt buộc!", isWarningShown);
     }
 
     @Then("I verify the student list page is displayed")
@@ -296,5 +189,73 @@ public class ManagementEduSteps {
         System.out.println("Step: Verify downloaded Excel file is empty");
         boolean isValid = hocVienPage.verifyDownloadedExcel(true);
         Assert.assertTrue("Excel has data rows, but expected it to be empty!", isValid);
+    }
+
+    @And("T click the Three dots on the first student row")
+    public void tClickTheThreeDotsOnTheFirstStudentRow() {
+        System.out.println("Step: Click the Three dots on the first student row");
+        hocVienPage.funcClickThreeDots();
+    }
+
+
+
+    @Then("The system should display the student row with code {string}")
+    public void theSystemShouldDisplayTheStudentRowWithCode(String studentCode) {
+        System.out.println("Step: Verify student row with code " + studentCode + " is visible");
+        hocVienPage.funcIsStudentVisible(studentCode);
+    }
+
+    @Then("The system should not display student with code {string}")
+    public void theSystemShouldNotDisplayStudentWithCode(String studentCode) {
+        System.out.println("Step: Verify student row with code " + studentCode + " is not visible");
+        hocVienPage.funcIsStudentNotVisible(studentCode);
+    }
+
+    @And("I verify student error message {string}")
+    public void iVerifyStudentErrorMessage(String expectedMessage) {
+        System.out.println("Step: Verify student error message is: " + expectedMessage);
+        themHocVienPage.verifyErrorMessage(expectedMessage);
+    }
+
+    @Then("I verify search result between API and GUI")
+    public void iVerifySearchResultBetweenAPIAndGUI() {
+        try {
+            System.out.println("Step: Verify search result between API and GUI");
+            org.json.JSONObject apiJson = new org.json.JSONObject(stepsDefinition.APITesting.response.getBody().asString());
+            org.json.JSONArray apiData = apiJson.getJSONArray("data");
+
+            List<WebElement> guiRows = driver.findElements(By.xpath("//table//tbody/tr"));
+
+            System.out.println("API count: " + apiData.length() + ", GUI count: " + guiRows.size());
+            Assert.assertEquals("API và GUI trả về số lượng dòng khác nhau", apiData.length(), guiRows.size());
+
+            if (apiData.length() == 0) return;
+
+            Map<String, org.json.JSONObject> apiMap = new HashMap<>();
+            for (int i = 0; i < apiData.length(); i++) {
+                org.json.JSONObject student = apiData.getJSONObject(i);
+                apiMap.put(student.optString("code", "").trim().toLowerCase(), student);
+            }
+
+            for (WebElement row : guiRows) {
+                List<WebElement> cells = row.findElements(By.xpath("td"));
+                String studentCode = cells.get(0).getText().trim();
+                org.json.JSONObject apiStudent = apiMap.get(studentCode.toLowerCase());
+
+                Assert.assertNotNull("Mã học viên: " + studentCode + " không được tìm thấy trong kết quả API trả về", apiStudent);
+                Assert.assertEquals("Sai mã học viên", apiStudent.optString("code"), cells.get(0).getText().trim());
+                Assert.assertEquals("Sai tên học viên", apiStudent.optString("nameStudent"), cells.get(1).getText().trim());
+            }
+            System.out.println("Verify dữ liệu API và GUI thành công");
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Then("I verify student list with API")
+    public void iVerifyStudentListWithAPI() {
+        System.out.println("Step: Verify student list is visible and populated after reload");
+        boolean isVisible = hocVienPage.isStudentTableDisplayed();
+        Assert.assertTrue("Bảng học viên không hiển thị dữ liệu sau khi Reload!", isVisible);
     }
 }

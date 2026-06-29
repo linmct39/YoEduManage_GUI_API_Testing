@@ -2,6 +2,8 @@ package pageObject;
 
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
+import java.util.List;
+
 import common.CommonFunctions;
 import org.junit.Assert;
 import org.openqa.selenium.By;
@@ -28,6 +30,14 @@ public class managementEduHocVien {
     By btnExportExcel = By.xpath("//input[@placeholder='Tìm kiếm ...']/following::button[3]");
     By txtSearchBox = By.xpath("//input[@placeholder='Tìm kiếm ...']");
     By txtSearchBoxEmpty = By.xpath("//input[@value='']");
+
+    // Action button, menu options and delete dialog locators
+    By firstStudentRow = By.xpath("(//tbody//tr)[1]");
+    By firstStudentActionButton = By.xpath("(//tbody//tr[1]//td[last()]//div[contains(@class,'pointer')])[1]");
+    By menuView = By.xpath("//li[@role='menuitem' and .//span[normalize-space(.)='Xem']]");
+    By menuDelete = By.xpath("//li[@role='menuitem' and (.//span[normalize-space(.)='Xóa'] or .//span[normalize-space(.)='Xoá'])]");
+    By btnCloseDelete = By.xpath("//div[@role='dialog']//button[normalize-space(.)='Đóng' or normalize-space(.)='Đóng']");
+    By btnConfirmDelete = By.xpath("//div[@role='dialog']//button[normalize-space(.)='Xóa' or normalize-space(.)='Xoá']");
 
     public managementEduHocVien(WebDriver driver) {
         if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
@@ -321,5 +331,91 @@ public class managementEduHocVien {
             }
         }
         return false;
+    }
+
+    public void funcClickThreeDots() {
+        try {
+            if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+                commonFunctions.waitUntilElementLocated(driver, firstStudentRow, intTimeOut);
+                commonFunctions.waitUntilElementLocated(driver, firstStudentActionButton, intTimeOut);
+                WebElement actionBtn = driver.findElement(firstStudentActionButton);
+                try {
+                    actionBtn.click();
+                } catch (Exception clickEx) {
+                    ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", actionBtn);
+                }
+                Thread.sleep(Integer.parseInt(System.getProperty("timeSleep").trim()));
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    public void funcSelectAction(String strButton) {
+        try {
+            if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+                By targetMenuOption = strButton.equalsIgnoreCase("Delete") ? menuDelete : menuView;
+                commonFunctions.waitUntilElementLocated(driver, targetMenuOption, intTimeOut);
+                driver.findElement(targetMenuOption).click();
+                Thread.sleep(Integer.parseInt(System.getProperty("timeSleep").trim()));
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    public void funcConfirmDelete(String option) {
+        try {
+            if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+                By targetButton = option.equalsIgnoreCase("Accept") ? btnConfirmDelete : btnCloseDelete;
+                commonFunctions.waitUntilElementLocated(driver, targetButton, intTimeOut);
+                WebElement btn = driver.findElement(targetButton);
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+                Thread.sleep(Integer.parseInt(System.getProperty("timeSleep").trim()));
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    public void funcIsStudentVisible(String studentCode) {
+        try {
+            if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+                wait.until(ExpectedConditions.visibilityOfElementLocated(tableHocVien));
+                String studentRow = String.format("//table//tbody/tr[contains(., '%s')]", studentCode);
+                List<WebElement> rows = driver.findElements(By.xpath(studentRow));
+                boolean isStudentFound = false;
+                if (!rows.isEmpty()) {
+                    String rowText = rows.get(0).getText().trim();
+                    if (!rowText.isEmpty() && !rowText.equalsIgnoreCase("Không có dữ liệu") && !rowText.equalsIgnoreCase("No data")) {
+                        isStudentFound = true;
+                    }
+                }
+                Assert.assertTrue("Mong đợi học viên " + studentCode + " xuất hiện, nhưng không tìm thấy hoặc bảng trống", isStudentFound);
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    public void funcIsStudentNotVisible(String studentCode) {
+        try {
+            if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+                Thread.sleep(Integer.parseInt(System.getProperty("timeSleep").trim()));
+                String studentRow = String.format("//table//tbody/tr[contains(., '%s')]", studentCode);
+                List<WebElement> rows = driver.findElements(By.xpath(studentRow));
+                boolean isStudentFound = false;
+                if (!rows.isEmpty()) {
+                    String rowText = rows.get(0).getText().trim();
+                    if (!rowText.isEmpty() && !rowText.equalsIgnoreCase("Không có dữ liệu") && !rowText.equalsIgnoreCase("No data")) {
+                        isStudentFound = true;
+                    }
+                }
+                Assert.assertFalse("Mong đợi học viên " + studentCode + " bị xóa, nhưng vẫn tìm thấy trong bảng", isStudentFound);
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
     }
 }

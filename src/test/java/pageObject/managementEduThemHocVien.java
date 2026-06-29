@@ -264,4 +264,23 @@ public class managementEduThemHocVien {
         }
         return false;
     }
+
+    public void verifyErrorMessage(String strErrorMessage) {
+        try {
+            if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+                By errorMessageLocator = By.xpath(
+                        "//*[contains(@class,'MuiFormHelperText-root') " +
+                                "or contains(@class,'MuiAlert-message') " +
+                                "or contains(@class,'MuiSnackbarContent-message') " +
+                                "or contains(@class,'MuiFormHelperText-contained')]" +
+                                "[contains(normalize-space(.),\"" + strErrorMessage + "\")]"
+                );
+                WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessageLocator));
+                Assert.assertTrue("Expected error message: " + strErrorMessage + " but got: " + element.getText().trim(), element.getText().trim().contains(strErrorMessage));
+            }
+        } catch (Exception e) {
+            Assert.fail("Error message validation failed: " + e.getMessage());
+        }
+    }
 }

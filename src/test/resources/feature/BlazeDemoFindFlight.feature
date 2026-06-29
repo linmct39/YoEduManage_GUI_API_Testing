@@ -2,7 +2,7 @@ Feature: Blaze Demo
 	 Background: Open Web Page
 	 	Given I open web page
 
-	@smokeTest @TestBlazeDemo
+	@SmokeTest @TestBlazeDemo
 	Scenario Outline: Test Blaze Demo
 #		Given I open web page
 		Then I select flight from "<from>" to "<to>"

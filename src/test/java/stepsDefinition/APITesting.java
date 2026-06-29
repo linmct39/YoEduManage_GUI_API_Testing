@@ -9,6 +9,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import common.CommonFunctions;
 import common.ContextSteps;
 import io.cucumber.java.en.Then;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import static io.restassured.RestAssured.given;
@@ -17,6 +19,7 @@ public class APITesting {
     WebDriver driver;
     WebDriverWait wait;
     private Response invalidCase;
+    public static Response response;
 
     int intRandomNumber = 0;
 
@@ -412,6 +415,81 @@ public class APITesting {
                     .response();
 
             System.out.println("Response API (Invalid Delete Student): " + invalidCase.asString());
+
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @And("I execute the search API with keywords {string}")
+    public void iExecuteTheSearchAPIWithKeywords(String strKeywords) {
+        try {
+            System.out.println("I execute the search API with keywords " + strKeywords);
+            RestAssured.baseURI = System.getProperty("apiUrl");
+            String strSearchUrl = "/yoedu/management/api/students/paging-custom";
+
+            String body = "{\n" +
+                    "    \"isExist\": 0,\n" +
+                    "    \"param\": {\n" +
+                    "        \"pagination\": {\n" +
+                    "            \"pageSize\": 30,\n" +
+                    "            \"pageNumber\": 1,\n" +
+                    "            \"isPaging\": true\n" +
+                    "        },\n" +
+                    "        \"groupFilters\": [\n" +
+                    "            {\n" +
+                    "                \"filters\": [\n" +
+                    "                    {\n" +
+                    "                        \"operator\": \"contains\",\n" +
+                    "                        \"field\": \"Code\",\n" +
+                    "                        \"value\": \"" + strKeywords + "\"\n" +
+                    "                    },\n" +
+                    "                    {\n" +
+                    "                        \"operator\": \"contains\",\n" +
+                    "                        \"field\": \"Name\",\n" +
+                    "                        \"value\": \"" + strKeywords + "\"\n" +
+                    "                    },\n" +
+                    "                    {\n" +
+                    "                        \"operator\": \"contains\",\n" +
+                    "                        \"field\": \"Parent.Name\",\n" +
+                    "                        \"value\": \"" + strKeywords + "\"\n" +
+                    "                    },\n" +
+                    "                    {\n" +
+                    "                        \"operator\": \"contains\",\n" +
+                    "                        \"field\": \"Parent.PhoneNumber\",\n" +
+                    "                        \"value\": \"" + strKeywords + "\"\n" +
+                    "                    },\n" +
+                    "                    {\n" +
+                    "                        \"operator\": \"contains\",\n" +
+                    "                        \"field\": \"Grade.Name\",\n" +
+                    "                        \"value\": \"" + strKeywords + "\"\n" +
+                    "                    }\n" +
+                    "                ],\n" +
+                    "                \"logic\": {\n" +
+                    "                    \"value\": \"or\"\n" +
+                    "                }\n" +
+                    "            }\n" +
+                    "        ],\n" +
+                    "        \"includes\": [],\n" +
+                    "        \"sort\": [\n" +
+                    "            {\n" +
+                    "                \"predicate\": \"Student.AlterDate\",\n" +
+                    "                \"reverse\": true\n" +
+                    "            }\n" +
+                    "        ]\n" +
+                    "    }\n" +
+                    "}";
+
+            response = given()
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + System.getProperty("access_token"))
+                    .body(body)
+                    .when()
+                    .post(strSearchUrl)
+                    .then()
+                    .extract().response();
+
+            assertEquals(200, response.statusCode());
 
         } catch (Exception e) {
             Assert.fail(e.getMessage());

@@ -19,7 +19,12 @@ public class CommonSteps {
 	CommonFunctions commonFunctions = new CommonFunctions();
 
 	public CommonSteps() {
-
+		try {
+			ContextSteps contextSteps = new ContextSteps();
+			driver = contextSteps.getDriver();
+		} catch (Throwable t) {
+			System.out.println("Error initializing driver in CommonSteps constructor: " + t.getMessage());
+		}
 	}
 
 	@When("I open web page")

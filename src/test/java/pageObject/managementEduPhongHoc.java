@@ -32,6 +32,14 @@ public class managementEduPhongHoc {
 
     By errorMessage = By.xpath("//p[contains(@class, 'Mui-error')]");
 
+   
+    By firstRoomRow = By.xpath("(//tbody//tr)[1]");
+    By firstRoomActionButton = By.xpath("(//tbody//tr[1]//td[last()]//div[contains(@class,'pointer')])[1]");
+    By menuView = By.xpath("//li[@role='menuitem' and .//span[normalize-space(.)='Xem']]");
+    By menuDelete = By.xpath("//li[@role='menuitem' and (.//span[normalize-space(.)='Xóa'] or .//span[normalize-space(.)='Xoá'])]");
+    By btnCloseDelete = By.xpath("//div[@role='dialog']//button[normalize-space(.)='Đóng' or normalize-space(.)='Đóng']");
+    By btnConfirmDelete = By.xpath("//div[@role='dialog']//button[normalize-space(.)='Xóa' or normalize-space(.)='Xoá']");
+
     public managementEduPhongHoc(WebDriver driver) {
         if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
             this.driver = driver;
@@ -159,6 +167,69 @@ public class managementEduPhongHoc {
             }
         }
         return false;
+    }
+
+    public void funcClickThreeDots() {
+        try {
+            if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+                commonFunctions.waitUntilElementLocated(driver, firstRoomRow, intTimeOut);
+                commonFunctions.waitUntilElementLocated(driver, firstRoomActionButton, intTimeOut);
+                WebElement actionBtn = driver.findElement(firstRoomActionButton);
+                try {
+                    actionBtn.click();
+                } catch (Exception clickEx) {
+                    ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", actionBtn);
+                }
+                Thread.sleep(Integer.parseInt(System.getProperty("timeSleep").trim()));
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    public void funcSelectAction(String strButton) {
+        try {
+            if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+                By targetMenuOption = strButton.equalsIgnoreCase("Delete") ? menuDelete : menuView;
+                commonFunctions.waitUntilElementLocated(driver, targetMenuOption, intTimeOut);
+                driver.findElement(targetMenuOption).click();
+                Thread.sleep(Integer.parseInt(System.getProperty("timeSleep").trim()));
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    public void funcConfirmDelete(String option) {
+        try {
+            if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+                By targetButton = option.equalsIgnoreCase("Accept") ? btnConfirmDelete : btnCloseDelete;
+                commonFunctions.waitUntilElementLocated(driver, targetButton, intTimeOut);
+                WebElement btn = driver.findElement(targetButton);
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+                Thread.sleep(Integer.parseInt(System.getProperty("timeSleep").trim()));
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    public void verifyRoomErrorMessage(String strErrorMessage) {
+        try {
+            if (System.getProperty("osName").trim().toLowerCase().contains("windows")) {
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+                By errorMessageLocator = By.xpath(
+                        "//*[contains(@class,'MuiFormHelperText-root') " +
+                                "or contains(@class,'MuiAlert-message') " +
+                                "or contains(@class,'MuiSnackbarContent-message')]" +
+                                "[contains(normalize-space(.),\"" + strErrorMessage + "\")]"
+                );
+                WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessageLocator));
+                Assert.assertTrue("Expected error: " + strErrorMessage + " but got: " + element.getText().trim(), element.getText().trim().contains(strErrorMessage));
+            }
+        } catch (Exception e) {
+            Assert.fail("Room error message validation failed: " + e.getMessage());
+        }
     }
 }
 
